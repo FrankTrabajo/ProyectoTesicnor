@@ -1,0 +1,10 @@
+package com.app.proyecto.services;
+
+import java.util.List;
+
+import com.app.proyecto.modelos.Pelicula;
+
+public interface PeliculaService {
+
+	public List<Pelicula> listarTodasLasPeliculas();
+}

@@ -1,0 +1,5 @@
+package com.app.proyecto.services;
+
+public class PeliculaServiceImpl {
+
+}

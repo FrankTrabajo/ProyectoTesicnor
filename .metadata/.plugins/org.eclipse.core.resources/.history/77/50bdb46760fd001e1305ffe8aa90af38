@@ -1,0 +1,96 @@
+package com.app.proyecto.controladores;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.app.proyecto.services.PeliculaService;
+
+@Controller
+public class PeliculaController {
+
+	@Autowired
+	private PeliculaService servicio;
+	
+	@GetMapping({"/peliculas","/"})
+	public String listarPelicuals(Model modelo) {
+		modelo.addAttribute("peliculas",servicio.listarTodasLasPeliculas());
+		return "peliculas"; //nos retorna al archivo peliculas
+	}
+	
+	@GetMapping("/peliculas/filtrar")
+	public String filtrarPelis(@RequestParam(value = "titulo", required = false) String titulo,
+	                            @RequestParam(value = "año", required = false) String año,
+	                            @RequestParam(value = "valoracion", required = false) Integer valoracion,
+	                            Model modelo) {
+	    modelo.addAttribute("titulo", titulo);
+	    modelo.addAttribute("valoracion", valoracion);
+	    modelo.addAttribute("años", servicio.recibirAños());
+	    
+	    return "peliculasFiltrar";
+	}
+	
+	@GetMapping("/peliculas/filtrar/{titulo}")
+	public String filtrarPelisTitulo(Model modelo, @PathVariable("titulo") String titulo) {
+		modelo.addAttribute("peliculas", servicio.mostrarPeliculaPorNombre(titulo));
+		return "peliculasFiltrar";
+	}
+	
+	/*
+	@GetMapping("/peliculas/resultado")
+	public String mostrarResultados(Model modelo,
+	                                 @RequestParam(value = "titulo", required = false) String titulo,
+	                                 @RequestParam(value = "año", required = false) Integer año,
+	                                 @RequestParam(value = "valoracion", required = false) Integer valoracion) {
+	    List<Pelicula> peliculasFiltradas = servicio.filtrarPeliculas(titulo, año, valoracion);
+	    modelo.addAttribute("peliculas", peliculasFiltradas);
+	    return "peliculasResultado";
+	}
+	*/
+	/* ESTO ESTÁ COMENTADO PORQUE YA NO NOS VA A SERVIR, SE USABA PARA CONECTARSE A OMDb Y ALMACENAR LOS DATOS
+	@GetMapping("/guardar")
+	public ResponseEntity<String> guardarPeliculas() {
+	    String apiUrl = "http://www.omdbapi.com/?apikey=731e41f&s=Harry+Potter&r=json";
+	    RestTemplate restTemplate = new RestTemplate();
+	    ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
+
+	    // Procesar la respuesta y guardar en la base de datos
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    try {
+	        JsonNode root = objectMapper.readTree(response.getBody());
+	        JsonNode searchResults = root.path("Search");
+	        if (searchResults.isArray()) {
+	            for (JsonNode result : searchResults) {
+	                String poster = result.path("Poster").asText();
+	                if (poster != null && !poster.isEmpty()) { // Verificar si el poster no es nulo ni vacío
+	                    Pelicula pelicula = new Pelicula();
+	                    pelicula.setTitulo(result.path("Title").asText());
+	                    pelicula.setAño(result.path("Year").asText());
+	                    pelicula.setPoster(result.path("Poster").asText());
+	                    pelicula.setImdbID(result.path("imdbID").asText());
+	                    pelicula.setValoracion(1);
+	                    // Setear otros atributos según la respuesta de la API
+	                    System.out.println("Pelicula a guardar:");
+	                    System.out.println("ImdbID: " + pelicula.getImdbID());
+	                    System.out.println("Título: " + pelicula.getTitulo());
+	                    System.out.println("Año: " + pelicula.getAño());
+	                    System.out.println("Poster: " + pelicula.getPoster());
+	                    listaPelicula.add(pelicula);
+	                    peliculaRepository.save(pelicula);
+	                    
+	                } else {
+	                    System.out.println("La película no tiene poster, no se guardará en la base de datos.");
+	                }
+	            }
+	        }
+	        return ResponseEntity.ok("Datos guardados correctamente en la base de datos.");
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la respuesta de la API.");
+	    }
+	}
+	*/
+}

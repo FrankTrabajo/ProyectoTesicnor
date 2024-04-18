@@ -1,0 +1,5 @@
+package com.app.proyecto.repositorio;
+
+public class PeliculaRepository {
+
+}
